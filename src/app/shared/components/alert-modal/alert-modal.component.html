@@ -2,10 +2,27 @@
  -->
 <ng-template #template>
     <div class="modal-header">
-      <h4 class="modal-title pull-left">{{modalTitle }}</h4>
+      <h4 class="modal-title pull-left">
+
+        <ng-container *ngIf="alertInfo.type; else elseTemplate">
+            <fa-icon icon="check" class="text-success mr-2"></fa-icon>
+        </ng-container>
+        <ng-template #elseTemplate>
+            <fa-icon icon="exclamation-circle" class="text-danger mr-2"></fa-icon>
+        </ng-template>  
+        {{ alertInfo.title }}
+      </h4>
       <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <div class="modal-body" [innerHTML]="modalBody"></div>
+    <div class="modal-body" [innerHTML]="alertInfo.body"></div>
+    <div class="modal-footer text-right">
+      <button class="btn btn-danger" *ngIf="alertInfo.cancelButton">
+        {{ alertInfo.cancelButtonText }}
+      </button>
+      <button class="btn btn-primary">
+        {{ alertInfo.accptButtonText }}
+      </button>
+    </div>
   </ng-template>
