@@ -12,8 +12,7 @@ import { CustomAlert } from 'src/app/models/alert';
 export class AlertModalComponent implements OnInit {
   @ViewChild('template') template: TemplateRef<any>;
   modalRef: BsModalRef;
-  modalTitle: string;
-  modalBody: string;
+  resolveFn: (value: { action: 'accept' | 'cancel' }) => void;
 
   alertInfo: CustomAlert = {
     accptButtonText: 'aceptar',
@@ -31,7 +30,7 @@ export class AlertModalComponent implements OnInit {
 
   ngOnInit() {
     this.alertService.alertSubject
-      .subscribe((obj)=>{
+      .subscribe((obj) => {
         /*this.modalTitle = obj.title;
         this.modalBody = obj.body;*/
         this.alertInfo = Object.assign(<CustomAlert>{
@@ -41,15 +40,35 @@ export class AlertModalComponent implements OnInit {
           body: '',
           title: 'Alerta',
           type: 'success'
+        }, obj.info);
 
-        }, obj);
+        this.resolveFn = obj.resolve;
 
         this.openModal(this.template);
       })
   }
 
-  openModal(template: TemplateRef <any>) {
+
+  openModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);
+  }
+
+  closeModal() {
+    this.modalRef.hide();
+  }
+
+  accept(): void {
+    if (this.resolveFn && typeof this.resolveFn === 'function') {
+      this.resolveFn({ action: 'accept' });
+      this.closeModal();
+    }
+  }
+
+  cancel(): void {
+    if (this.resolveFn && typeof this.resolveFn === 'function') {
+      this.resolveFn({ action: 'cancel' });
+      this.closeModal();
+    }
   }
 
 }

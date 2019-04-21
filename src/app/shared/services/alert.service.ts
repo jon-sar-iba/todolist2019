@@ -6,16 +6,22 @@ import { CustomAlert } from 'src/app/models/alert';
   providedIn: 'root'
 })
 export class AlertService {
-  alertSubject: Subject<CustomAlert>;
+  alertSubject: Subject<{
+    resolve: (value: { action: 'accept' | 'cancel' }) => void |
+      PromiseLike<{ action: 'accept' | 'cancel' }>,
+    info: CustomAlert
+  }>;
 
-  constructor() { 
+  constructor() {
     this.alertSubject = new Subject();
   }
 
-  show(obj: CustomAlert): Promise<any> {
+  show(obj: CustomAlert): Promise<{ action: 'accept' | 'cancel' }> {
     return new Promise((resolve, reject) => {
-      this.alertSubject.next(obj);
+      this.alertSubject.next({
+        resolve, //esto es equivalente a "resolve" ya que existe una variable o argumento con ese nombre.
+        info: obj
+      });
     })
-    
   }
 }

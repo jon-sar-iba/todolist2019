@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertService } from '../shared/services/alert.service';
-import { FormGroup, FormBuilder, Validators, AbstractControl, AsyncValidator, AsyncValidatorFn } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl, AsyncValidator, AsyncValidatorFn, EmailValidator } from '@angular/forms';
 import { AuthService } from '../shared/services/auth.service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { User } from '../models/user';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -25,19 +27,29 @@ export class SignupComponent implements OnInit {
   constructor(
     private alertService: AlertService,
     private fb: FormBuilder,
-    private authSevice: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit() {
+
     this.buildForm();
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/home']);
+      return;
+    }
   }
   buildForm() {
     this.signupForm = this.fb.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
-      secondLastName: ['', [Validators.required, Validators.email, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-      email: ['', [Validators.required]],
-      username: ['', [Validators.required], this.checkValidUsername(this.authSevice)],
+      secondLastName: ['', [Validators.required]],
+      email: ['', [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+      ], this.checkValidEmail(this.authService)],
+      username: ['', [Validators.required], this.checkValidUsername(this.authService)],
       passwords: this.fb.group({
         psw: ['', [Validators.required]],
         confirm: ['', [Validators.required]]
@@ -60,6 +72,7 @@ export class SignupComponent implements OnInit {
       })
   }
 
+  //VALIDACION DEL NOMBRE DE USUARIO
   checkValidUsername(authService: AuthService): AsyncValidatorFn {
     return (control: AbstractControl): Observable<any> => {
       return authService.findUsername(control.value)
@@ -69,7 +82,17 @@ export class SignupComponent implements OnInit {
           })
         )
     }
-
+  }
+  //VALIDACION DEL EMAIL(CORREOELECTRONICO)
+  checkValidEmail(authService: AuthService): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<any> => {
+      return authService.findEmail(control.value)
+        .pipe(
+          map((res: any) => {
+            return res.email ? { emailExists: true } : null;
+          })
+        )
+    }
   }
 
   getIcon(value: boolean): string {
@@ -84,26 +107,49 @@ export class SignupComponent implements OnInit {
     event.preventDefault();
     this.submittedForm = true;
 
+    console.log(this.signupForm.controls);
+
     if (this.signupForm.invalid) {
       this.errorMessage = 'por favor';
       return;
     }
+
     this.alertService.show({
       title: '¡¡WARNING!!',
-      body: '¿Estás seguro de hackear el ojo de dios?',
-      cancelButton: true
-    })
+      body: 'Are you sure to hack the eye of God?',
+      cancelButton: true,
+      type: 'error'
+    }).then((result) => {
+      let user: User = this.signupForm.value;
 
-    let user = this.signupForm.value;
+      user.password = this.signupForm.value.passwords.psw;
 
-    this.authSevice.signup(user)
-    .subscribe((res) => {
-      console.log(res);
-      console.log('registroExitoso');
-    }, (err) => {
-      console.log(err);
-      console.log('registroFallido');
-    })
+
+      if (result.action === 'accept') {
+        this.authService.signup(user)
+          .subscribe((res) => {
+            this.authService.setAuthToken(res);
+            this.authService.getAuth()
+              .subscribe((authUser) => {
+                this.authService.setAuthUser(authUser);
+                this.router.navigate(['/home'])
+              })
+            console.log(res);
+            console.log('registroExitoso');
+          }, (err) => {
+            console.log(err);
+            console.log('registroFallido');
+
+            this.alertService.show({
+              body: err.error.message || err.message
+            });
+          })
+  }
+
+
+})
+
+
   }
 
 }

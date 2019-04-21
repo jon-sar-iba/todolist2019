@@ -18,10 +18,10 @@
     </div>
     <div class="modal-body" [innerHTML]="alertInfo.body"></div>
     <div class="modal-footer text-right">
-      <button class="btn btn-danger" *ngIf="alertInfo.cancelButton">
+      <button class="btn btn-danger" *ngIf="alertInfo.cancelButton" (click)="cancel()">
         {{ alertInfo.cancelButtonText }}
       </button>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" (click)="accept()">
         {{ alertInfo.accptButtonText }}
       </button>
     </div>
