@@ -1,1 +1,23 @@
 /* You can add global styles to this file, and also import other style files */
+.form-group.custom-icon {
+    position: relative;
+
+    .preview-icon{
+        position: absolute;
+        display: block;
+        width: 24px;
+        height: 24px;
+        border-radius: 100%;
+        padding: 0;
+        right: 22px;
+        bottom: 7px;
+        z-index: 2;
+        text-align: center;
+        color: #616161;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+    }
+}

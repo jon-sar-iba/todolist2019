@@ -1,36 +1,133 @@
-<form>
-  <div class="form-group">
-    <label for="signupEmail">Email <address></address></label>
-    <input type="email" class="form-control" id="signupEmail"
-      placeholder="Escribe tu correo">
+<form class="card mt-3" [formGroup]="signupForm">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12">
+        <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group custom-icon col-12">
+        <div class="alert alert-warning" role="alert" *ngIf="signupForm.get('email').hasError('pattern')">
+          Por favor introduce un correo electronico válido
+        </div>
+        <label for="signupEmail">
+          Email
+          <span class="text-danger ml-2" *ngIf="signupForm.get('email').hasError('required') && submittedForm">Este
+            campo es requerido</span>
+        </label>
+        <input type="email" class="form-control" id="signupEmail" placeholder="Escribe tu correo"
+          formControlName="email">
+
+        <span class="preview-icon" *ngIf="signupForm.get('email').value">
+          <fa-icon icon="check" class="text-success" *ngIf="signupForm.get('email').status === 'VALID'"></fa-icon>
+          <fa-icon icon="times" class="text-danger"
+            *ngIf="signupForm.get('email').status === 'INVALID' && signupForm.get('email').hasError('emailExists')">
+          </fa-icon>
+          <fa-icon icon="spinner" class="text-info" [spin]="true" *ngIf="signupForm.get('email').status === 'PENDING'">
+          </fa-icon>
+
+        </span>
+
+      </div>
+      <div class="form-group col-12">
+        <label for="signupName">
+          Nombre
+          <span class="text-danger ml-2" *ngIf="signupForm.get('firstName').hasError('required') && submittedForm">Este
+            campo es requerido</span>
+        </label>
+        <input type="text" class="form-control" id="signupName" placeholder="Escribe tu nombre"
+          formControlName="firstName">
+      </div>
+      <div class="form-group col-12 col-md-6">
+        <label for="signupFirstLastName">
+          Apellido paterno
+          <span class="text-danger ml-2" *ngIf="signupForm.get('lastName').hasError('required') && submittedForm">Este
+            campo es requerido</span>
+
+        </label>
+        <input type="text" class="form-control" id="signupFirsLastName" placeholder="Escribe tu apellido paterno"
+          formControlName="lastName">
+      </div>
+      <div class="form-group col-12 col-md-6">
+        <label for="signupSecondLastName">
+          Apellido materno
+          <span class="text-danger ml-2"
+            *ngIf="signupForm.get('secondLastName').hasError('required') && submittedForm">Este
+            campo es requerido</span>
+
+        </label>
+        <input type="text" class="form-control" id="signupSecondLastName" placeholder="Escribe tu apellido materno"
+          formControlName="secondLastName">
+      </div>
+      <div class="form-group custom-icon col-12">
+        <label for="signupUserName">
+          Nombre de usuario
+          <span class="text-danger ml-2" *ngIf="signupForm.get('username').hasError('required') && submittedForm">Este
+            campo es requerido</span>
+
+        </label>
+        <input type="text" class="form-control" id="signupUserName" placeholder="Escribe tu nombre de usuario"
+          formControlName="username">
+        <span class="preview-icon" *ngIf="signupForm.get('username').value">
+          <fa-icon icon="check" class="text-success" *ngIf="signupForm.get('username').status === 'VALID'"></fa-icon>
+          <fa-icon icon="times" class="text-danger" *ngIf="signupForm.get('username').status === 'INVALID'">
+          </fa-icon>
+          <fa-icon icon="spinner" class="text-info" [spin]="true"
+            *ngIf="signupForm.get('username').status === 'PENDING'"></fa-icon>
+
+        </span>
+      </div>
+
+
+
+
+
+
+      <ng-container formGroupName="passwords">
+        <div class="form-group custom-icon col-12 col-md-6">
+          <label for="signupPassword">
+            {{ passText }}
+            <span class="text-danger ml-2"
+              *ngIf="signupForm.get('passwords.psw').hasError('required') && submittedForm">Este campo es
+              requerido</span>
+
+          </label>
+          <input [type]="passwordPreviews.first ? 'password' : 'text'" class="form-control" id="signupPassword"
+            [placeholder]="passText" formControlName="psw">
+          <span class="preview-icon" (click)="passwordPreviews.first = !passwordPreviews.first">
+            <fa-icon [icon]="passwordPreviews.first ? 'eye-slash' : 'eye'"></fa-icon>
+          </span>
+        </div>
+
+        <div class="form-group custom-icon col-12 col-md-6">
+          <label for="signupPassword1Confirm">
+            Confirmar contraseña
+            <span class="text-danger ml-2"
+              *ngIf="signupForm.get('passwords.confirm').hasError('required') && submittedForm">Este campo es
+              requerido</span>
+          </label>
+          <input [type]="passwordPreviews.confirm ? 'password' : 'text'" class="form-control"
+            id="signupPassword1Confirm" placeholder="Password" formControlName="confirm">
+          <span class="preview-icon" (click)="passwordPreviews.confirm = !passwordPreviews.confirm">
+            <fa-icon [icon]="getIcon(passwordPreviews.confirm)"></fa-icon>
+          </span>
+        </div>
+        <div class="col-12">
+          <div class="alert alert-warning" role="alert" *ngIf="signupForm.get('passwords').hasError('notSame')">
+            las contraseñasno coincidens
+          </div>
+        </div>
+      </ng-container>
+
+
+
+
+
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary btn-block" (click)="signup($event)">Register</button>
+      </div>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="signupName">Nombre <address></address></label>
-    <input type="email" class="form-control" id="signupName"
-      placeholder="Escribe tu nombre">
-  </div>
-  <div class="form-group">
-    <label for="signupFirstLastName">Apellido paterno <address></address></label>
-    <input type="email" class="form-control" id="signupFirsLastName"
-      placeholder="Escribe tu apellido paterno">
-  </div>
-  <div class="form-group">
-    <label for="signupSecondLastName">Apellido materno <address></address></label>
-    <input type="email" class="form-control" id="signupSecondLastName"
-      placeholder="Escribe tu apellido materno">
-  </div>
-  <div class="form-group">
-    <label for="signupUserName">Nombre de usuario <address></address></label>
-    <input type="email" class="form-control" id="signupUserName"
-      placeholder="Escribe tu nombre de usuario">
-  </div>
-  <div class="form-group">
-    <label for="signupPasword">Contraseña</label>
-    <input type="password" class="form-control" id="signupPassword" placeholder="Password">
-  </div>
-  <div class="form-group">
-    <label for="signupPassword1Confirm">Comfirmar contraseña</label>
-    <input type="password" class="form-control" id="signupPassword1Confirm" placeholder="Password">
-  </div>
-  <button type="submit" class="btn btn-primary btn-block">Register</button>
 </form>
